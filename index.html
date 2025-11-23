@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Cụ Tính Toán Tài Chính Đất Đai (Chuẩn NĐ 291)</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* --- CSS IN ẤN (FIXED) --- */
+        @media print {
+            /* Ẩn tất cả mọi thứ */
+            body > * {
+                display: none !important;
+            }
+            
+            /* Chỉ hiện vùng in */
+            #print-area {
+                display: block !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                margin: 0;
+                padding: 20px;
+                background: white;
+                font-size: 12pt;
+                color: black;
+                z-index: 9999;
+            }
+
+            /* Reset các style gây ảnh hưởng */
+            html, body {
+                height: auto;
+                overflow: visible;
+                background: white;
+            }
+        }
+
+        /* Input styling focus */
+        .input-field:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-slate-900 text-white flex flex-col shadow-xl z-20 no-print">
+        <div class="p-6 border-b border-slate-700">
+            <h1 class="text-xl font-bold text-blue-400"><i class="fa-solid fa-calculator mr-2"></i>FINANCE LAND</h1>
+            <p class="text-xs text-slate-400 mt-1">Chuẩn NĐ 291/2025/NĐ-CP</p>
+        </div>
+        
+        <nav class="flex-1 overflow-y-auto py-4">
+            <button onclick="switchTab('tab1')" class="nav-btn w-full text-left px-6 py-3 hover:bg-slate-800 transition-colors border-l-4 border-transparent active-tab bg-slate-800 border-blue-500" id="btn-tab1">
+                <i class="fa-solid fa-sack-dollar w-6"></i> Quỹ Phát Triển Đất
+            </button>
+            <button onclick="switchTab('tab2')" class="nav-btn w-full text-left px-6 py-3 hover:bg-slate-800 transition-colors border-l-4 border-transparent" id="btn-tab2">
+                <i class="fa-solid fa-house-flag w-6"></i> Tiền Sử Dụng Đất
+            </button>
+            <button onclick="switchTab('tab3')" class="nav-btn w-full text-left px-6 py-3 hover:bg-slate-800 transition-colors border-l-4 border-transparent" id="btn-tab3">
+                <i class="fa-solid fa-file-invoice-dollar w-6"></i> Tiền Thuê Đất
+            </button>
+        </nav>
+
+        <div class="p-4 text-xs text-center text-slate-500 border-t border-slate-700">
+            Version 2.4.0 (Full Modules)
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col overflow-hidden relative">
+        <!-- Header -->
+        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 no-print z-10">
+            <h2 class="text-xl font-semibold text-slate-700" id="header-title">Chi Phí Quản Lý Quỹ Phát Triển Đất</h2>
+            <div class="flex items-center space-x-4">
+                <span class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-medium">Nghị định 291/2025</span>
+                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center">
+                    <i class="fa-solid fa-user text-slate-500"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="flex-1 overflow-y-auto p-8 relative z-0" id="main-content">
+            
+            <!-- TAB 1: QUỸ PHÁT TRIỂN ĐẤT -->
+            <div id="tab1" class="tab-content block animate-fade-in">
+                <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 bg-slate-50">
+                        <h3 class="font-bold text-lg text-slate-700">
+                            Tính Chi Phí Quản Lý Vốn Ứng (C<sub>QL</sub>)
+                        </h3>
+                        <p class="text-sm text-slate-500 mt-1">Công thức: C<sub>QL</sub> = V<sub>ứng</sub> × R<sub>ql</sub></p>
+                    </div>
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Tổng vốn ứng thực tế (V<sub>ứng</sub>) (VNĐ)</label>
+                            <input type="text" id="t1_von" class="input-field w-full p-3 border border-slate-300 rounded-lg" onkeyup="formatInput(this)" placeholder="Nhập số tiền...">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-2">Mức chi phí quản lý (R<sub>ql</sub>) (%)</label>
+                            <input type="number" id="t1_tyle" class="input-field w-full p-3 border border-slate-300 rounded-lg" placeholder="Ví dụ: 1.5">
+                        </div>
+                    </div>
+                    <div class="bg-yellow-50 p-4 mx-6 rounded-lg border border-yellow-200 text-sm text-yellow-800">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>
+                        <strong>Lưu ý quan trọng (NĐ 291):</strong> Tỷ lệ này là cố định cho từng dự án/nhiệm vụ, <b>không</b> nhân với thời gian ứng vốn.
+                    </div>
+                    <div class="p-6 flex justify-end space-x-3">
+                        <button onclick="calcTab1()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-all shadow-lg hover:shadow-blue-500/30">Tính Toán</button>
+                        <button onclick="printSlip('tab1')" class="bg-slate-700 hover:bg-slate-800 text-white px-6 py-2 rounded-lg font-medium transition-all"><i class="fa-solid fa-print mr-2"></i>In Phiếu</button>
+                    </div>
+                    <!-- Kết quả -->
+                    <div id="t1_result" class="hidden bg-slate-50 border-t border-slate-200 p-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-600">Chi phí quản lý phải nộp:</span>
+                            <span class="text-2xl font-bold text-blue-600" id="t1_output">0</span>
+                        </div>
+                        <p class="text-right text-sm text-slate-500 mt-1 italic font-medium" id="t1_text_money">Bằng chữ...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: TIỀN SỬ DỤNG ĐẤT -->
+            <div id="tab2" class="tab-content hidden animate-fade-in space-y-6">
+                
+                <!-- Card 2.1 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-lg text-slate-700 mb-4 border-l-4 border-blue-500 pl-3">2.1. Giao Đất & Phân Bổ Chung Cư</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="label text-sm font-medium text-slate-600">Diện tích đất (S) (m<sup>2</sup>)</label>
+                            <input type="number" id="t21_s" class="input-field w-full mt-1 p-2 border rounded" placeholder="0">
+                        </div>
+                        <div>
+                            <label class="label text-sm font-medium text-slate-600">Giá đất (G) (VNĐ/m<sup>2</sup>)</label>
+                            <input type="text" id="t21_g" class="input-field w-full mt-1 p-2 border rounded" onkeyup="formatInput(this)" placeholder="0">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" id="t21_isApartment" class="w-5 h-5 text-blue-600 rounded" onchange="toggleApartmentInputs()">
+                            <span class="text-slate-700 font-medium">Là dự án nhà ở nhiều tầng (Chung cư)?</span>
+                        </label>
+                    </div>
+                    <div id="t21_apartment_group" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg mb-4">
+                        <div>
+                            <label class="label text-sm">Tổng DT sàn sử dụng (S<sub>tổng</sub>) (m<sup>2</sup>)</label>
+                            <input type="number" id="t21_s_tong" class="input-field w-full mt-1 p-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="label text-sm">DT sàn riêng của căn hộ (S<sub>riêng</sub>) (m<sup>2</sup>)</label>
+                            <input type="number" id="t21_s_rieng" class="input-field w-full mt-1 p-2 border rounded">
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                        <div id="t21_result" class="text-lg font-bold text-blue-600 mb-1"></div>
+                        <div id="t21_text_money" class="text-sm italic text-gray-500 text-right mb-4"></div>
+                        <div class="flex justify-end space-x-2">
+                             <button onclick="calcTab21()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Tính</button>
+                             <button onclick="printSlip('tab21')" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2.2 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-lg text-slate-700 mb-4 border-l-4 border-green-500 pl-3">2.2. Chuyển Mục Đích Sử Dụng Đất</h3>
+                    <div class="mb-4">
+                        <label class="label text-sm font-medium text-slate-600">Tiền SDĐ của loại đất SAU khi chuyển (T<sub>sau</sub>)</label>
+                        <input type="text" id="t22_t_sau" class="input-field w-full mt-1 p-2 border rounded font-semibold text-green-700" onkeyup="formatInput(this)" placeholder="Nhập số tiền...">
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h4 class="text-sm font-bold text-slate-700 mb-2 uppercase">Tính Khấu Trừ (T<sub>trước</sub>)</h4>
+                        <label class="label text-xs text-slate-500 mb-1 block">Nguồn gốc đất trước chuyển mục đích:</label>
+                        <select id="t22_type" class="w-full p-2 border rounded mb-3 text-sm" onchange="renderT22Inputs()">
+                            <option value="type1">1. Đất có thời hạn (Đã nộp tiền)</option>
+                            <option value="type2">2. Đất NN (Tổ chức nhận CN)</option>
+                            <option value="type3">3. Đất NN (Hộ GĐ/Giao không thu)</option>
+                            <option value="type4">4. Đất Thuê trả một lần (Hộ GĐ)</option>
+                        </select>
+                        <div id="t22_dynamic_inputs" class="grid grid-cols-2 gap-3">
+                            <!-- JS will inject inputs here -->
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                         <div id="t22_result" class="text-lg font-bold text-green-600 mb-1"></div>
+                         <div id="t22_text_money" class="text-sm italic text-gray-500 text-right mb-4"></div>
+                         <div class="flex justify-end space-x-2">
+                            <button onclick="calcTab22()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Tính</button>
+                            <button onclick="printSlip('tab22')" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
+                       </div>
+                    </div>
+                </div>
+
+                <!-- Card 2.3 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-lg text-slate-700 mb-4 border-l-4 border-purple-500 pl-3">2.3. Cấp GCN Hộ Gia Đình (Tra Cứu %)</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="label text-sm">Diện tích (m<sup>2</sup>)</label>
+                            <input type="number" id="t23_s" class="input-field w-full mt-1 p-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="label text-sm">Giá Bảng Giá Đất (VNĐ)</label>
+                            <input type="text" id="t23_g" class="input-field w-full mt-1 p-2 border rounded" onkeyup="formatInput(this)">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="label text-sm mb-1 block">Mốc thời gian / Loại:</label>
+                        <select id="t23_period" class="w-full p-2 border rounded text-sm">
+                            <option value="20">Trước 18/12/1980 (Vượt hạn mức) -> 20%</option>
+                            <option value="40_old">18/12/1980 - 15/10/1993 (Vượt hạn mức) -> 40%</option>
+                            <option value="20_mid">15/10/1993 - 01/7/2004 (Trong hạn mức) -> 20%</option>
+                            <option value="40_new">01/7/2004 - 01/7/2014 (Trong hạn mức) -> 40%</option>
+                            <option value="70_over">01/7/2004 - 01/7/2014 (Vượt hạn mức) -> 70%</option>
+                            <option value="70_wrong">Sử dụng sai thẩm quyền (NĐ 291) -> 70%</option>
+                        </select>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                        <div id="t23_result" class="text-lg font-bold text-purple-600 mb-1"></div>
+                        <div id="t23_text_money" class="text-sm italic text-gray-500 text-right mb-4"></div>
+                        <div class="flex justify-end space-x-2">
+                             <button onclick="calcTab23()" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">Tính</button>
+                             <button onclick="printSlip('tab23')" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2.4 -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-lg text-slate-700 mb-4 border-l-4 border-red-500 pl-3">2.4. Tiền Nộp Bổ Sung (Gia Hạn & Chậm Giá)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="label text-sm">Tiền Gốc (VNĐ)</label>
+                            <input type="text" id="t24_goc" class="input-field w-full mt-1 p-2 border rounded" onkeyup="formatInput(this)">
+                        </div>
+                        <div>
+                            <label class="label text-sm">Ngày Bắt Đầu</label>
+                            <input type="date" id="t24_start" class="input-field w-full mt-1 p-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="label text-sm">Ngày Kết Thúc (QĐ)</label>
+                            <input type="date" id="t24_end" class="input-field w-full mt-1 p-2 border rounded">
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="label text-sm mb-2 block">Loại tính toán:</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="t24_type" value="extension" checked onclick="toggleT24Options()">
+                                <span>Gia hạn SDĐ (Phạt 2%)</span>
+                            </label>
+                            <label class="flex items-center space-x-2">
+                                <input type="radio" name="t24_type" value="late" onclick="toggleT24Options()">
+                                <span>Chậm giá đất (Lãi 3.6%)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="t24_late_options" class="hidden mb-4 p-3 bg-red-50 rounded border border-red-100">
+                         <label class="flex items-center space-x-2">
+                            <input type="checkbox" id="t24_isSpecificMethod" class="w-4 h-4 text-red-600">
+                            <span class="text-sm">Giá đất tính theo phương pháp cụ thể? (Được trừ 180 ngày)</span>
+                        </label>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t">
+                         <div id="t24_result" class="text-sm font-medium text-slate-700 mb-1"></div>
+                         <div id="t24_text_money" class="text-sm italic text-gray-500 text-right mb-4"></div>
+                         <div class="flex justify-end space-x-2">
+                              <button onclick="calcTab24()" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Tính</button>
+                              <button onclick="printSlip('tab24')" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
+                         </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TAB 3: TIỀN THUÊ ĐẤT -->
+            <div id="tab3" class="tab-content hidden animate-fade-in space-y-6">
+                
+                <!-- Card 3.1: Cơ bản -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-lg text-slate-700 mb-4 border-l-4 border-orange-500 pl-3">3.1. Tính Tiền Thuê Cơ Bản</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="label text-sm">Diện tích (m<sup>2</sup>)</label>
+                            <input type="number" id="t31_s" class="input-field w-full p-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="label text-sm">Đơn giá thuê (VNĐ/m<sup>2</sup>)</label>
+                            <input type="text" id="t31_dg" class="input-field w-full p-2 border rounded" onkeyup="formatInput(this)">
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                         <div id="t31_result" class="text-lg font-bold text-orange-600 mb-1"></div>
+                         <div id="t31_text_money" class="text-sm italic text-gray-500 text-right mb-4"></div>
+                         <div class="flex justify-end space-x-2">
+                            <button onclick="calcTab31()" class="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700">Tính</button>
+                            <button onclick="printSlip('tab31')" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- Card 3.2: Gia hạn thuê -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-lg text-slate-700 mb-4 border-l-4 border-cyan-500 pl-3">3.2. Tiền Bổ Sung Khi Gia Hạn Thuê</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="label text-sm">Diện tích gia hạn (m<sup>2</sup>)</label>
+                            <input type="number" id="t32_s" class="input-field w-full p-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="label text-sm">Giá Bảng Giá Đất (G) (VNĐ)</label>
+                            <input type="text" id="t32_g" class="input-field w-full p-2 border rounded" onkeyup="formatInput(this)">
+                        </div>
+                        <div>
+                            <label class="label text-sm">Tỷ lệ đơn giá thuê (%)</label>
+                            <input type="number" id="t32_rate" class="input-field w-full p-2 border rounded" placeholder="VD: 1.0">
+                        </div>
+                        <div>
+                            <label class="label text-sm">Số tháng gia hạn</label>
+                            <input type="number" id="t32_month" class="input-field w-full p-2 border rounded">
+                        </div>
+                    </div>
+                     <div class="mt-4 pt-4 border-t">
+                         <div id="t32_result" class="text-lg font-bold text-cyan-600 mb-1"></div>
+                         <div id="t32_text_money" class="text-sm italic text-gray-500 text-right mb-4"></div>
+                         <div class="flex justify-end space-x-2">
+                             <button onclick="calcTab32()" class="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700">Tính</button>
+                             <button onclick="printSlip('tab32')" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- Card 3.3: Chuyển hình thức (NEW) -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-lg text-slate-700 mb-4 border-l-4 border-teal-500 pl-3">3.3. Chuyển Hình Thức & Mục Đích (Thuê)</h3>
+                    <div class="mb-4">
+                        <select id="t33_type" class="w-full p-2 border rounded text-sm mb-4" onchange="toggleT33Options()">
+                            <option value="typeA">A. Hàng năm -> Một lần (Khấu trừ)</option>
+                            <option value="typeB">B. Chuyển mục đích (Thuê trả một lần)</option>
+                            <option value="typeC">C. Giao đất -> Thuê đất (Trả một lần)</option>
+                        </select>
+                        <div id="t33_inputs" class="grid grid-cols-2 gap-4">
+                             <!-- Dynamic Injected -->
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                         <div id="t33_result" class="text-lg font-bold text-teal-600 mb-1"></div>
+                         <div id="t33_text_money" class="text-sm italic text-gray-500 text-right mb-4"></div>
+                         <div class="flex justify-end space-x-2">
+                             <button onclick="calcTab33()" class="bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700">Tính</button>
+                             <button onclick="printSlip('tab33')" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- Card 3.4: Điều chỉnh quy hoạch -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-lg text-slate-700 mb-4 border-l-4 border-indigo-500 pl-3">3.4. Điều Chỉnh Quy Hoạch Chi Tiết</h3>
+                    <div class="mb-4">
+                        <select id="t34_type" class="w-full p-2 border rounded text-sm mb-4" onchange="toggleT34Options()">
+                            <option value="auction">A. Đấu giá / Trả một lần</option>
+                            <option value="annual">B. Thuê trả hàng năm (Tính lại thời gian n)</option>
+                        </select>
+                        <div id="t34_inputs" class="grid grid-cols-2 gap-4">
+                             <!-- Dynamic Injected -->
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t">
+                         <div id="t34_result" class="text-lg font-bold text-indigo-600 mb-1"></div>
+                         <div id="t34_text_money" class="text-sm italic text-gray-500 text-right mb-4"></div>
+                         <div class="flex justify-end space-x-2">
+                             <button onclick="calcTab34()" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Tính</button>
+                             <button onclick="printSlip('tab34')" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
+                         </div>
+                    </div>
+                </div>
+
+                <!-- Card 3.5: Chậm giá đất (Thuê) (NEW) -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="font-bold text-lg text-slate-700 mb-4 border-l-4 border-rose-500 pl-3">3.5. Chậm Giá Đất (Thuê Đất)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="label text-sm">Tiền Thuê Gốc (VNĐ)</label>
+                            <input type="text" id="t35_goc" class="input-field w-full mt-1 p-2 border rounded" onkeyup="formatInput(this)">
+                        </div>
+                        <div>
+                            <label class="label text-sm">Ngày Bắt Đầu</label>
+                            <input type="date" id="t35_start" class="input-field w-full mt-1 p-2 border rounded">
+                        </div>
+                        <div>
+                            <label class="label text-sm">Ngày Kết Thúc (QĐ)</label>
+                            <input type="date" id="t35_end" class="input-field w-full mt-1 p-2 border rounded">
+                        </div>
+                    </div>
+                    <div class="mb-4 p-3 bg-rose-50 rounded border border-rose-100">
+                         <label class="flex items-center space-x-2">
+                            <input type="checkbox" id="t35_isSpecificMethod" class="w-4 h-4 text-rose-600">
+                            <span class="text-sm">Giá đất tính theo phương pháp cụ thể? (Được trừ 180 ngày)</span>
+                        </label>
+                        <p class="text-xs text-rose-500 mt-2 italic">*Áp dụng mức lãi suất 3.6%/năm cho thời gian chậm.</p>
+                    </div>
+
+                    <div class="mt-4 pt-4 border-t">
+                         <div id="t35_result" class="text-sm font-medium text-slate-700 mb-1"></div>
+                         <div id="t35_text_money" class="text-sm italic text-gray-500 text-right mb-4"></div>
+                         <div class="flex justify-end space-x-2">
+                              <button onclick="calcTab35()" class="bg-rose-600 text-white px-4 py-2 rounded hover:bg-rose-700">Tính</button>
+                              <button onclick="printSlip('tab35')" class="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-800"><i class="fa-solid fa-print"></i></button>
+                         </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- AREA IN (ẨN) -->
+    <div id="print-area" class="hidden"></div>
+
+    <script>
+        // --- UTILITIES ---
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+
+        function parseNumber(str) {
+            if(!str) return 0;
+            return parseFloat(str.toString().replace(/,/g, '')) || 0;
+        }
+
+        function formatInput(input) {
+            let value = input.value.replace(/,/g, '');
+            if (!isNaN(value) && value !== '') {
+                input.value = formatNumber(value);
+            }
+        }
+
+        // --- ĐỌC SỐ THÀNH CHỮ TIẾNG VIỆT (FIXED) ---
+        const mangSo = ['không','một','hai','ba','bốn','năm','sáu','bảy','tám','chín'];
+        
+        function docBoBa(a, b, c) {
+            if (a == 0 && b == 0 && c == 0) return "";
+            var kq = "";
+            if (a != 0) {
+                kq += mangSo[a] + " trăm ";
+                if (b == 0 && c != 0) kq += " linh ";
+            }
+            if (b != 0) {
+                if (b != 1) kq += mangSo[b] + " mươi ";
+                else kq += " mười ";
+            }
+            if (c != 0) {
+                if (a != 0 && b != 0 && c == 5) kq += " lăm ";
+                else if (c == 5 && b == 0) kq += " năm ";
+                else if (c == 5 && b != 1) kq += " lăm ";
+                else if (c == 1 && b > 1) kq += " mốt ";
+                else kq += mangSo[c];
+            }
+            return kq;
+        }
+
+        function docSoThanhChu(n) {
+            if (n == 0) return "Không đồng";
+            var str = Math.abs(n).toFixed(0);
+            var l = str.length;
+            if (l > 15) return "Số quá lớn";
+            
+            var kq = "";
+            var hauto = ["", " nghìn", " triệu", " tỷ", " nghìn tỷ", " triệu tỷ"];
+            var count = 0;
+            var i = l;
+            
+            while (i > 0) {
+                var c = parseInt(str.substring(Math.max(0, i-1), i));
+                var b = (i > 1) ? parseInt(str.substring(Math.max(0, i-2), i-1)) : 0;
+                var a = (i > 2) ? parseInt(str.substring(Math.max(0, i-3), i-2)) : 0;
+                
+                var sub = docBoBa(a, b, c);
+                if (sub != "") {
+                    kq = sub + hauto[count] + " " + kq;
+                }
+                
+                count++;
+                i -= 3;
+            }
+            
+            kq = kq.trim().replace(/\s+/g, ' ');
+            kq = kq.charAt(0).toUpperCase() + kq.slice(1);
+            return kq + " đồng";
+        }
+
+        // --- TABS LOGIC ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.add('hidden');
+                el.classList.remove('block');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('block');
+
+            // Update Nav Styles
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-slate-800', 'border-blue-500');
+                el.classList.add('border-transparent');
+            });
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('bg-slate-800', 'border-blue-500');
+            activeBtn.classList.remove('border-transparent');
+
+            // Update Header
+            const titles = {
+                'tab1': 'Chi Phí Quản Lý Quỹ Phát Triển Đất',
+                'tab2': 'Tính Tiền Sử Dụng Đất (NĐ 103 & 291)',
+                'tab3': 'Tính Tiền Thuê Đất (NĐ 103 & 291)'
+            };
+            document.getElementById('header-title').textContent = titles[tabId];
+        }
+
+        // --- LOGIC TAB 1 ---
+        function calcTab1() {
+            const V = parseNumber(document.getElementById('t1_von').value);
+            const R = parseFloat(document.getElementById('t1_tyle').value) || 0;
+            const C = V * (R / 100);
+            
+            const finalVal = Math.round(C);
+            document.getElementById('t1_output').textContent = formatNumber(finalVal) + ' VNĐ';
+            document.getElementById('t1_text_money').textContent = docSoThanhChu(finalVal);
+            document.getElementById('t1_result').classList.remove('hidden');
+        }
+
+        // --- LOGIC TAB 2 ---
+        
+        // 2.1
+        function toggleApartmentInputs() {
+            const isApt = document.getElementById('t21_isApartment').checked;
+            document.getElementById('t21_apartment_group').classList.toggle('hidden', !isApt);
+        }
+
+        function calcTab21() {
+            const S = parseFloat(document.getElementById('t21_s').value) || 0;
+            const G = parseNumber(document.getElementById('t21_g').value);
+            const isApt = document.getElementById('t21_isApartment').checked;
+            
+            let Total = S * G;
+            let Note = "";
+
+            if (isApt) {
+                const S_tong = parseFloat(document.getElementById('t21_s_tong').value) || 1;
+                const S_rieng = parseFloat(document.getElementById('t21_s_rieng').value) || 0;
+                Total = (S * G) * (S_rieng / S_tong);
+                Note = `(Phân bổ: ${S_rieng}/${S_tong})`;
+            }
+
+            const finalVal = Math.round(Total);
+            document.getElementById('t21_result').innerHTML = `Kết quả: ${formatNumber(finalVal)} VNĐ <span class="text-sm font-normal text-gray-500">${Note}</span>`;
+            document.getElementById('t21_text_money').textContent = docSoThanhChu(finalVal);
+            return finalVal;
+        }
+
+        // 2.2
+        function renderT22Inputs() {
+            const type = document.getElementById('t22_type').value;
+            const container = document.getElementById('t22_dynamic_inputs');
+            container.innerHTML = ''; // Clear
+
+            let html = '';
+            if (type === 'type1' || type === 'type4') {
+                const labelG = type === 'type1' ? 'Giá đất trước (G<sub>trước</sub>)' : 'Giá thuê trước (G<sub>thuê</sub>)';
+                html = `
+                    <div class="col-span-1"><label class="text-xs">Diện tích (m<sup>2</sup>)</label><input id="t22_s" type="number" class="border p-1 w-full rounded"></div>
+                    <div class="col-span-1"><label class="text-xs">${labelG}</label><input id="t22_g" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                    <div class="col-span-1"><label class="text-xs">Thời hạn giao/thuê (Năm)</label><input id="t22_total_time" type="number" class="border p-1 w-full rounded"></div>
+                    <div class="col-span-1"><label class="text-xs">Thời gian còn lại (Năm)</label><input id="t22_remain_time" type="number" class="border p-1 w-full rounded"></div>
+                `;
+            } else if (type === 'type2' || type === 'type3') {
+                const labelG = type === 'type2' ? 'Giá Đất NN (G<sub>nn</sub>)' : 'Giá Bảng Giá (G<sub>bg</sub>)';
+                html = `
+                    <div class="col-span-1"><label class="text-xs">Diện tích (S<sub>nn</sub>) (m<sup>2</sup>)</label><input id="t22_s" type="number" class="border p-1 w-full rounded"></div>
+                    <div class="col-span-1"><label class="text-xs">${labelG}</label><input id="t22_g" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function calcTab22() {
+            const T_sau = parseNumber(document.getElementById('t22_t_sau').value);
+            const type = document.getElementById('t22_type').value;
+            
+            let T_truoc = 0;
+            const S = parseFloat(document.getElementById('t22_s')?.value) || 0;
+            const G = parseNumber(document.getElementById('t22_g')?.value);
+
+            if (type === 'type1' || type === 'type4') {
+                const totalT = parseFloat(document.getElementById('t22_total_time').value) || 1;
+                const remainT = parseFloat(document.getElementById('t22_remain_time').value) || 0;
+                T_truoc = (S * G) * (remainT / totalT);
+            } else {
+                T_truoc = S * G;
+            }
+
+            const Result = T_sau - T_truoc;
+            const displayResult = Result > 0 ? Result : 0;
+            document.getElementById('t22_result').textContent = `Phải nộp: ${formatNumber(Math.round(displayResult))} VNĐ`;
+            document.getElementById('t22_text_money').textContent = docSoThanhChu(Math.round(displayResult));
+            return { T_sau, T_truoc, Result };
+        }
+        
+        // Init T22
+        renderT22Inputs();
+
+        // 2.3
+        function calcTab23() {
+            const S = parseFloat(document.getElementById('t23_s').value) || 0;
+            const G = parseNumber(document.getElementById('t23_g').value);
+            const period = document.getElementById('t23_period').value;
+            
+            let rate = 0;
+            if(period.includes('20')) rate = 0.2;
+            if(period.includes('40')) rate = 0.4;
+            if(period.includes('70')) rate = 0.7;
+
+            const Total = S * G * rate;
+            const finalVal = Math.round(Total);
+            document.getElementById('t23_result').textContent = `${formatNumber(finalVal)} VNĐ (Tỷ lệ: ${rate*100}%)`;
+            document.getElementById('t23_text_money').textContent = docSoThanhChu(finalVal);
+        }
+
+        // 2.4
+        function toggleT24Options() {
+            const type = document.querySelector('input[name="t24_type"]:checked').value;
+            document.getElementById('t24_late_options').classList.toggle('hidden', type !== 'late');
+        }
+
+        function calcTab24() {
+            const Goc = parseNumber(document.getElementById('t24_goc').value);
+            const d1 = new Date(document.getElementById('t24_start').value);
+            const d2 = new Date(document.getElementById('t24_end').value);
+            const type = document.querySelector('input[name="t24_type"]:checked').value;
+
+            if(isNaN(d1) || isNaN(d2)) {
+                alert("Vui lòng nhập ngày hợp lệ");
+                return;
+            }
+
+            let Result = 0;
+            let Detail = "";
+
+            if (type === 'extension') {
+                const diffTime = Math.abs(d2 - d1);
+                const diffMonths = Math.ceil(diffTime / (1000 * 60 * 60 * 24 * 30)); 
+                Result = Goc * 0.02 * (diffMonths / 12);
+                Detail = `Gia hạn ${diffMonths} tháng. Phạt 2%.`;
+            } else {
+                const endWithGrace = new Date(d2);
+                endWithGrace.setDate(d2.getDate() + 8);
+                
+                let diffTime = endWithGrace - d1;
+                let totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                const isSpecific = document.getElementById('t24_isSpecificMethod').checked;
+                if(isSpecific) totalDays -= 180;
+                
+                if (totalDays < 0) totalDays = 0;
+
+                const years = Math.floor(totalDays / 365);
+                const days = totalDays % 365;
+
+                const moneyYears = Goc * 0.036 * years;
+                const moneyDays = Goc * (0.036 / 365) * days;
+                Result = moneyYears + moneyDays;
+
+                Detail = `Tổng ${totalDays} ngày (${years} năm, ${days} lẻ). Lãi 3.6%.`;
+            }
+
+            const finalVal = Math.round(Result);
+            document.getElementById('t24_result').innerHTML = `
+                <span class="block text-red-600 font-bold text-lg">${formatNumber(finalVal)} VNĐ</span>
+                <span class="text-xs text-gray-500">${Detail}</span>
+            `;
+            document.getElementById('t24_text_money').textContent = docSoThanhChu(finalVal);
+        }
+
+        // --- LOGIC TAB 3 ---
+        function calcTab31() {
+            const S = parseFloat(document.getElementById('t31_s').value) || 0;
+            const DG = parseNumber(document.getElementById('t31_dg').value);
+            const finalVal = Math.round(S * DG);
+            document.getElementById('t31_result').textContent = formatNumber(finalVal) + ' VNĐ';
+            document.getElementById('t31_text_money').textContent = docSoThanhChu(finalVal);
+        }
+
+        function calcTab32() {
+            const S = parseFloat(document.getElementById('t32_s').value) || 0;
+            const G = parseNumber(document.getElementById('t32_g').value);
+            const Rate = parseFloat(document.getElementById('t32_rate').value) || 0;
+            const Month = parseFloat(document.getElementById('t32_month').value) || 0;
+            
+            const Total = S * G * (Rate/100) * (Month/12);
+            const finalVal = Math.round(Total);
+            document.getElementById('t32_result').textContent = formatNumber(finalVal) + ' VNĐ';
+            document.getElementById('t32_text_money').textContent = docSoThanhChu(finalVal);
+        }
+
+        // 3.3 Logic (NEW)
+        function toggleT33Options() {
+            const type = document.getElementById('t33_type').value;
+            const div = document.getElementById('t33_inputs');
+            if (type === 'typeA') {
+                div.innerHTML = `
+                    <div><label class="text-xs">Tiền hàng năm (T<sub>hàng năm</sub>)</label><input id="t33_a_rent" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                    <div><label class="text-xs">Thời gian đã nộp còn lại (Năm)</label><input id="t33_a_time" type="number" class="border p-1 w-full rounded"></div>
+                `;
+            } else if (type === 'typeB') {
+                div.innerHTML = `
+                    <div><label class="text-xs">Tiền sau chuyển đổi (T<sub>sau</sub>)</label><input id="t33_b_sau" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                    <div><label class="text-xs">Tiền trước chuyển đổi (T<sub>trước</sub>)</label><input id="t33_b_truoc" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <div><label class="text-xs">Tiền thuê sau (T<sub>thuê sau</sub>)</label><input id="t33_c_sau" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                    <div><label class="text-xs">Tiền SDĐ đã nộp (T<sub>đã nộp</sub>)</label><input id="t33_c_truoc" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                `;
+            }
+        }
+        toggleT33Options();
+
+        function calcTab33() {
+            const type = document.getElementById('t33_type').value;
+            let result = 0;
+            
+            if (type === 'typeA') {
+                const rent = parseNumber(document.getElementById('t33_a_rent').value);
+                const time = parseFloat(document.getElementById('t33_a_time').value) || 0;
+                result = rent * time;
+                document.getElementById('t33_result').textContent = `Khấu trừ: ${formatNumber(Math.round(result))} VNĐ`;
+            } else if (type === 'typeB') {
+                const sau = parseNumber(document.getElementById('t33_b_sau').value);
+                const truoc = parseNumber(document.getElementById('t33_b_truoc').value);
+                result = sau - truoc;
+                if(result < 0) result = 0;
+                document.getElementById('t33_result').textContent = `Phải nộp: ${formatNumber(Math.round(result))} VNĐ`;
+            } else {
+                const sau = parseNumber(document.getElementById('t33_c_sau').value);
+                const truoc = parseNumber(document.getElementById('t33_c_truoc').value);
+                result = sau - truoc;
+                if(result < 0) result = 0;
+                document.getElementById('t33_result').textContent = `Phải nộp: ${formatNumber(Math.round(result))} VNĐ`;
+            }
+            document.getElementById('t33_text_money').textContent = docSoThanhChu(Math.round(result));
+        }
+
+        function toggleT34Options() {
+             const type = document.getElementById('t34_type').value;
+             const div = document.getElementById('t34_inputs');
+             if(type === 'auction') {
+                 div.innerHTML = `
+                    <div><label class="text-xs">Tiền QH Sau (T<sub>sau</sub>)</label><input id="t34_a_sau" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                    <div><label class="text-xs">Tiền QH Trước (T<sub>trước</sub>)</label><input id="t34_a_truoc" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                    <div><label class="text-xs">Giá Trúng (G<sub>trúng</sub>)</label><input id="t34_a_trung" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                    <div><label class="text-xs">Giá Khởi Điểm (G<sub>kđ</sub>)</label><input id="t34_a_kd" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                 `;
+             } else {
+                  div.innerHTML = `
+                    <div><label class="text-xs">Đơn giá đã trả/ứng (DG<sub>cũ</sub>)</label><input id="t34_b_old" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                    <div><label class="text-xs">Đơn giá sau điều chỉnh (DG<sub>mới</sub>)</label><input id="t34_b_new" type="text" onkeyup="formatInput(this)" class="border p-1 w-full rounded"></div>
+                    <div><label class="text-xs">Thời gian còn lại (Năm) (T)</label><input id="t34_b_time" type="number" class="border p-1 w-full rounded"></div>
+                 `;
+             }
+        }
+        toggleT34Options();
+
+        function calcTab34() {
+             const type = document.getElementById('t34_type').value;
+             if (type === 'auction') {
+                 const Sau = parseNumber(document.getElementById('t34_a_sau').value);
+                 const Truoc = parseNumber(document.getElementById('t34_a_truoc').value);
+                 const Trung = parseNumber(document.getElementById('t34_a_trung').value);
+                 const Kd = parseNumber(document.getElementById('t34_a_kd').value);
+                 
+                 const Res = (Sau - Truoc) * (Trung / Kd);
+                 const finalVal = Math.round(Res);
+                 document.getElementById('t34_result').textContent = formatNumber(finalVal) + ' VNĐ';
+                 document.getElementById('t34_text_money').textContent = docSoThanhChu(finalVal);
+             } else {
+                 const DGCu = parseNumber(document.getElementById('t34_b_old').value);
+                 const DGMoi = parseNumber(document.getElementById('t34_b_new').value);
+                 const T = parseFloat(document.getElementById('t34_b_time').value) || 0;
+                 
+                 const n = (DGCu / DGMoi) * T;
+                 document.getElementById('t34_result').textContent = `Thời gian hoàn thành NV: ${n.toFixed(2)} Năm`;
+                 document.getElementById('t34_text_money').textContent = "";
+             }
+        }
+
+        // 3.5 Logic (New)
+        function calcTab35() {
+            const Goc = parseNumber(document.getElementById('t35_goc').value);
+            const d1 = new Date(document.getElementById('t35_start').value);
+            const d2 = new Date(document.getElementById('t35_end').value);
+
+            if(isNaN(d1) || isNaN(d2)) {
+                alert("Vui lòng nhập ngày hợp lệ");
+                return;
+            }
+
+            const endWithGrace = new Date(d2);
+            endWithGrace.setDate(d2.getDate() + 8);
+            
+            let diffTime = endWithGrace - d1;
+            let totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            const isSpecific = document.getElementById('t35_isSpecificMethod').checked;
+            if(isSpecific) totalDays -= 180;
+            
+            if (totalDays < 0) totalDays = 0;
+
+            const years = Math.floor(totalDays / 365);
+            const days = totalDays % 365;
+
+            const moneyYears = Goc * 0.036 * years;
+            const moneyDays = Goc * (0.036 / 365) * days;
+            const Result = moneyYears + moneyDays;
+
+            const finalVal = Math.round(Result);
+            document.getElementById('t35_result').innerHTML = `
+                <span class="block text-rose-600 font-bold text-lg">${formatNumber(finalVal)} VNĐ</span>
+                <span class="text-xs text-gray-500">Tổng ${totalDays} ngày (${years} năm, ${days} lẻ). Lãi 3.6%.</span>
+            `;
+            document.getElementById('t35_text_money').textContent = docSoThanhChu(finalVal);
+        }
+
+
+        // --- PRINT LOGIC (FIXED - Updated Name) ---
+        function printSlip(module) {
+            let title = "", content = "", totalText = "";
+            const today = new Date();
+            const dateStr = `Ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`;
+
+            // --- Xử lý dữ liệu in cho từng Tab ---
+            if (module === 'tab1') {
+                title = "PHIẾU TÍNH CHI PHÍ QUẢN LÝ VỐN ỨNG";
+                const V = document.getElementById('t1_von').value;
+                const R = document.getElementById('t1_tyle').value;
+                const Res = document.getElementById('t1_output').textContent;
+                totalText = document.getElementById('t1_text_money').textContent;
+                
+                content = `
+                    <tr class="border-b"><td class="p-2">Tổng vốn ứng (V<sub>ứng</sub>)</td><td class="p-2 font-bold text-right">${V} VNĐ</td></tr>
+                    <tr class="border-b"><td class="p-2">Tỷ lệ phí (R<sub>ql</sub>)</td><td class="p-2 font-bold text-right">${R} %</td></tr>
+                    <tr class="bg-gray-100 font-bold"><td class="p-2">CHI PHÍ QUẢN LÝ (C<sub>QL</sub>)</td><td class="p-2 text-right text-lg">${Res}</td></tr>
+                `;
+            } 
+            else if (module === 'tab21') {
+                title = "PHIẾU TÍNH TIỀN SỬ DỤNG ĐẤT";
+                const S = document.getElementById('t21_s').value;
+                const G = document.getElementById('t21_g').value;
+                totalText = document.getElementById('t21_text_money').textContent;
+                content = `
+                    <tr class="border-b"><td class="p-2">Diện tích đất</td><td class="p-2 font-bold text-right">${S} m<sup>2</sup></td></tr>
+                    <tr class="border-b"><td class="p-2">Giá đất</td><td class="p-2 font-bold text-right">${G} VNĐ/m<sup>2</sup></td></tr>
+                    <tr class="bg-gray-100 font-bold"><td class="p-2">Tổng tiền phải nộp</td><td class="p-2 text-right text-lg">${document.getElementById('t21_result').innerText.split('Kết quả: ')[1].split(' VNĐ')[0]} VNĐ</td></tr>
+                `;
+            } else if (module === 'tab22') {
+                title = "PHIẾU TÍNH TIỀN CHUYỂN MỤC ĐÍCH SỬ DỤNG ĐẤT";
+                const TSau = document.getElementById('t22_t_sau').value;
+                totalText = document.getElementById('t22_text_money').textContent;
+                content = `
+                    <tr class="border-b"><td class="p-2">Tiền SDĐ sau chuyển đổi</td><td class="p-2 font-bold text-right">${TSau} VNĐ</td></tr>
+                    <tr class="bg-gray-100 font-bold"><td class="p-2">Tổng tiền phải nộp</td><td class="p-2 text-right text-lg">${document.getElementById('t22_result').innerText.replace('Phải nộp: ', '')}</td></tr>
+                `;
+            } else if (module === 'tab23') {
+                title = "PHIẾU TÍNH TIỀN CẤP GCN HỘ GIA ĐÌNH";
+                const S = document.getElementById('t23_s').value;
+                const G = document.getElementById('t23_g').value;
+                const Period = document.getElementById('t23_period').options[document.getElementById('t23_period').selectedIndex].text;
+                totalText = document.getElementById('t23_text_money').textContent;
+                content = `
+                    <tr class="border-b"><td class="p-2">Diện tích</td><td class="p-2 font-bold text-right">${S} m<sup>2</sup></td></tr>
+                    <tr class="border-b"><td class="p-2">Giá đất</td><td class="p-2 font-bold text-right">${G} VNĐ/m<sup>2</sup></td></tr>
+                    <tr class="border-b"><td class="p-2">Mốc thời gian/Tỷ lệ</td><td class="p-2 text-right">${Period}</td></tr>
+                    <tr class="bg-gray-100 font-bold"><td class="p-2">Tổng tiền phải nộp</td><td class="p-2 text-right text-lg">${document.getElementById('t23_result').innerText}</td></tr>
+                `;
+            } else if (module === 'tab24') {
+                title = "PHIẾU TÍNH TIỀN NỘP BỔ SUNG";
+                const Goc = document.getElementById('t24_goc').value;
+                const Start = document.getElementById('t24_start').value;
+                const End = document.getElementById('t24_end').value;
+                totalText = document.getElementById('t24_text_money').textContent;
+                content = `
+                    <tr class="border-b"><td class="p-2">Tiền Gốc</td><td class="p-2 font-bold text-right">${Goc} VNĐ</td></tr>
+                    <tr class="border-b"><td class="p-2">Thời gian tính</td><td class="p-2 text-right">${Start} đến ${End}</td></tr>
+                    <tr class="bg-gray-100 font-bold"><td class="p-2">Tổng tiền bổ sung</td><td class="p-2 text-right text-lg">${document.getElementById('t24_result').innerText.split('\n')[0]}</td></tr>
+                `;
+            } else if (module === 'tab31') {
+                title = "PHIẾU TÍNH TIỀN THUÊ ĐẤT CƠ BẢN";
+                const S = document.getElementById('t31_s').value;
+                const DG = document.getElementById('t31_dg').value;
+                totalText = document.getElementById('t31_text_money').textContent;
+                content = `
+                    <tr class="border-b"><td class="p-2">Diện tích</td><td class="p-2 font-bold text-right">${S} m<sup>2</sup></td></tr>
+                    <tr class="border-b"><td class="p-2">Đơn giá thuê</td><td class="p-2 font-bold text-right">${DG} VNĐ/m<sup>2</sup></td></tr>
+                    <tr class="bg-gray-100 font-bold"><td class="p-2">Tiền thuê đất</td><td class="p-2 text-right text-lg">${document.getElementById('t31_result').innerText}</td></tr>
+                `;
+            } else if (module === 'tab32') {
+                title = "PHIẾU TÍNH TIỀN GIA HẠN THUÊ ĐẤT";
+                const S = document.getElementById('t32_s').value;
+                const G = document.getElementById('t32_g').value;
+                totalText = document.getElementById('t32_text_money').textContent;
+                content = `
+                    <tr class="border-b"><td class="p-2">Diện tích gia hạn</td><td class="p-2 font-bold text-right">${S} m<sup>2</sup></td></tr>
+                    <tr class="border-b"><td class="p-2">Giá đất</td><td class="p-2 font-bold text-right">${G} VNĐ/m<sup>2</sup></td></tr>
+                    <tr class="bg-gray-100 font-bold"><td class="p-2">Tiền bổ sung</td><td class="p-2 text-right text-lg">${document.getElementById('t32_result').innerText}</td></tr>
+                `;
+            } else if (module === 'tab33') {
+                title = "PHIẾU TÍNH CHUYỂN ĐỔI HÌNH THỨC THUÊ";
+                totalText = document.getElementById('t33_text_money').textContent;
+                content = `
+                    <tr class="bg-gray-100 font-bold"><td class="p-2">Kết quả tính toán</td><td class="p-2 text-right text-lg">${document.getElementById('t33_result').innerText}</td></tr>
+                `;
+            } else if (module === 'tab34') {
+                title = "PHIẾU TÍNH ĐIỀU CHỈNH QUY HOẠCH";
+                totalText = document.getElementById('t34_text_money').textContent;
+                content = `
+                    <tr class="bg-gray-100 font-bold"><td class="p-2">Kết quả tính toán</td><td class="p-2 text-right text-lg">${document.getElementById('t34_result').innerText}</td></tr>
+                `;
+            } else if (module === 'tab35') {
+                title = "PHIẾU TÍNH CHẬM GIÁ ĐẤT (THUÊ)";
+                const Goc = document.getElementById('t35_goc').value;
+                const Start = document.getElementById('t35_start').value;
+                const End = document.getElementById('t35_end').value;
+                totalText = document.getElementById('t35_text_money').textContent;
+                content = `
+                    <tr class="border-b"><td class="p-2">Tiền Thuê Gốc</td><td class="p-2 font-bold text-right">${Goc} VNĐ</td></tr>
+                    <tr class="border-b"><td class="p-2">Thời gian tính</td><td class="p-2 text-right">${Start} đến ${End}</td></tr>
+                    <tr class="bg-gray-100 font-bold"><td class="p-2">Tổng tiền bổ sung</td><td class="p-2 text-right text-lg">${document.getElementById('t35_result').innerText.split('\n')[0]}</td></tr>
+                `;
+            }
+            else {
+                title = "PHIẾU TÍNH TOÁN TÀI CHÍNH";
+                content = `<tr><td class="p-4 text-center">Nội dung chi tiết xem trên hệ thống phần mềm.</td></tr>`;
+            }
+
+            // --- Template In ---
+            const html = `
+                <div class="font-serif text-black p-4">
+                    <div class="text-center mb-6">
+                        <h4 class="uppercase font-bold text-sm">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h4>
+                        <h5 class="font-bold text-sm underline pb-2">Độc lập - Tự do - Hạnh phúc</h5>
+                        <h2 class="text-2xl font-bold mt-4 mb-1">${title}</h2>
+                        <p class="italic text-sm text-gray-600">Áp dụng Nghị định 291/2025/NĐ-CP & 103/2024/NĐ-CP</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <p><strong>Đơn vị lập phiếu:</strong> Phòng Kinh tế</p>
+                        <p><strong>Thời gian:</strong> ${dateStr}</p>
+                    </div>
+
+                    <table class="w-full border-collapse border border-gray-300 mb-6">
+                        <thead>
+                            <tr class="bg-gray-200">
+                                <th class="border border-gray-300 p-2 text-left">Diễn giải</th>
+                                <th class="border border-gray-300 p-2 text-right">Giá trị</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${content}
+                        </tbody>
+                    </table>
+
+                    <div class="mb-8">
+                        <p><strong>Số tiền bằng chữ:</strong> <span class="italic font-medium">${totalText}</span></p>
+                    </div>
+
+                    <div class="flex justify-between text-center mt-12">
+                        <div class="w-1/2">
+                            <p class="font-bold">NGƯỜI LẬP BIỂU</p>
+                            <p class="italic text-sm">(Ký, họ tên)</p>
+                            <div class="h-24"></div>
+                        </div>
+                        <div class="w-1/2">
+                            <p class="font-bold">THỦ TRƯỞNG ĐƠN VỊ</p>
+                            <p class="italic text-sm">(Ký, đóng dấu, họ tên)</p>
+                            <div class="h-24"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Render vào vùng in ẩn rồi gọi lệnh in
+            const printArea = document.getElementById('print-area');
+            printArea.innerHTML = html;
+            
+            // Timeout nhỏ để browser render kịp
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        }
+    </script>
+</body>
+</html>
